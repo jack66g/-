@@ -1,0 +1,17 @@
+创建虚拟环境 (Venv)：
+o	在终端输入：python -m venv venv
+o	激活它：
+	Windows: .\venv\Scripts\activate
+	Mac/Linux: source venv/bin/activate
+
+安装依赖pip install ultralytics opencv-python paho-mqtt pyttsx3
+同时安装：pip install ultralytics opencv-python paho-mqtt pyttsx3 Pillow
+降低依赖等级pip install comtypes==1.1.11兼容
+
+输入内容,对应垃圾类别,Wokwi 里的动作
+recyclable,可回收物,第 1 个舵机转动 (GPIO 13)
+food,厨余垃圾,第 2 个舵机转动 (GPIO 12)
+harmful,有害垃圾,第 3 个舵机转动 (GPIO 15)
+other,其他垃圾,第 4 个舵机转动 (GPIO 2)
+
+Compress：闸门步进电机
