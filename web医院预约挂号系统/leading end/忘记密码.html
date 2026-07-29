@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重置密码 · 仁和医院</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #00bfa5;
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #e8f0fe 0%, #e0f7f4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 44px 36px 36px;
+            text-align: center;
+        }
+        .card .logo {
+            width: 64px; height: 64px;
+            border-radius: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .card h1 { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .card .subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text);
+            background: #fafafa;
+            outline: none;
+            transition: all 0.25s;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.08);
+        }
+
+        .error { color: #e53935; font-size: 12px; margin-top: 4px; display: none; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(26,115,232,0.35);
+        }
+        .btn-submit:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+
+        .login-link {
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        .login-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        .toast {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 16px;
+            display: none;
+        }
+        .toast.error { background: #ffebee; color: #c62828; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="医院图标.png" alt="Logo" class="logo">
+        <h1>重置密码</h1>
+        <p class="subtitle">输入注册手机号设置新密码</p>
+
+        <form id="resetForm">
+            <div class="form-group">
+                <label>手机号</label>
+                <input type="text" id="phone" placeholder="请输入注册时使用的手机号">
+                <div class="error" id="phoneError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>新密码</label>
+                <input type="password" id="newPassword" placeholder="至少8位，包含数字和字母">
+                <div class="error" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>确认密码</label>
+                <input type="password" id="confirmPassword" placeholder="请再次输入新密码">
+                <div class="error" id="confirmError"></div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">确认重置</button>
+        </form>
+
+        <div class="toast" id="toast"></div>
+        <p class="login-link">想起密码了？<a href="登陆界面.html">去登录</a></p>
+    </div>
+
+    <script>
+        document.getElementById('resetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+            document.getElementById('toast').style.display = 'none';
+
+            const phone = document.getElementById('phone').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            let valid = true;
+            if (!/^\d{11}$/.test(phone)) {
+                showErr('phoneError', '请输入有效的11位手机号'); valid = false;
+            }
+            if (newPassword.length < 8 || !/(?=.*\d)(?=.*[a-zA-Z])/.test(newPassword)) {
+                showErr('passwordError', '密码需至少8位，包含数字和字母'); valid = false;
+            }
+            if (newPassword !== confirmPassword) {
+                showErr('confirmError', '两次输入的密码不一致'); valid = false;
+            }
+            if (!valid) return;
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '提交中...';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, newPassword })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    showToast('密码重置成功！即将跳转登录页...', false);
+                    setTimeout(() => { window.location.href = '登陆界面.html'; }, 1500);
+                } else {
+                    showToast(result.message || '密码重置失败', true);
+                }
+            } catch (err) {
+                showToast('网络请求失败', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '确认重置';
+            }
+        });
+
+        function showErr(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

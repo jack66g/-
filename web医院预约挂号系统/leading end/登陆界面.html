@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 · 仁和医院预约挂号</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #00bfa5;
+            --bg: #e8f0fe;
+            --card-bg: rgba(255,255,255,0.92);
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #e8f0fe 0%, #d4e4fd 30%, #e0f7f4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 背景装饰 */
+        .bg-decoration {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.06;
+            pointer-events: none;
+        }
+        .bg-circle-1 {
+            width: 500px; height: 500px;
+            background: var(--primary);
+            top: -150px; right: -100px;
+        }
+        .bg-circle-2 {
+            width: 350px; height: 350px;
+            background: var(--accent);
+            bottom: -100px; left: -80px;
+        }
+
+        /* 卡片容器 */
+        .login-card {
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.5);
+            width: 100%;
+            max-width: 400px;
+            padding: 48px 36px 36px;
+            text-align: center;
+        }
+
+        .login-card .logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .login-card h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .login-card .subtitle {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 32px;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .input-wrap {
+            position: relative;
+        }
+        .input-wrap .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0.5;
+        }
+        .input-wrap input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text);
+            background: rgba(248,249,250,0.7);
+            transition: all 0.25s;
+            outline: none;
+        }
+        .input-wrap input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+        }
+
+        .forgot-link {
+            text-align: right;
+            margin-bottom: 24px;
+        }
+        .forgot-link a {
+            color: var(--primary);
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .forgot-link a:hover { color: var(--primary-dark); }
+
+        /* 按钮 */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 13px 0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(26,115,232,0.35);
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+        }
+        .btn-outline:hover { background: #f0f6ff; }
+
+        .footer-text {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        .footer-text a { color: var(--primary); text-decoration: none; }
+
+        .toast {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration bg-circle-1"></div>
+    <div class="bg-decoration bg-circle-2"></div>
+
+    <div class="login-card">
+        <img src="医院图标.png" alt="Logo" class="logo">
+        <h1>用户登录</h1>
+        <p class="subtitle">仁和医院在线预约挂号平台</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>手机号</label>
+                <div class="input-wrap">
+                    <span class="input-icon">📱</span>
+                    <input type="text" id="username" placeholder="请输入11位手机号" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>密码</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                </div>
+            </div>
+
+            <div class="forgot-link">
+                <a href="忘记密码.html">忘记密码？</a>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary">登 录</button>
+                <a href="注册.html" class="btn btn-outline">注 册</a>
+            </div>
+        </form>
+
+        <div class="toast" id="toast"></div>
+        <p class="footer-text">
+            还没有账号？<a href="注册.html">立即注册</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const toast = document.getElementById('toast');
+            toast.style.display = 'none';
+
+            const phone = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!phone || !password) {
+                showToast('请输入手机号和密码');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = result.data.redirectUrl;
+                } else {
+                    showToast(result.message || result.error?.message || '登录失败，请检查账号密码');
+                }
+            } catch (err) {
+                showToast('网络请求失败，请检查服务是否启动');
+            }
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

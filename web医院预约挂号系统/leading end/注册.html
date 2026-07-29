@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新用户注册 · 仁和医院</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #00bfa5;
+            --bg: #e8f0fe;
+            --card-bg: #fff;
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #e8f0fe 0%, #e0f7f4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 520px;
+            padding: 44px 36px 36px;
+        }
+
+        .register-card h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .register-card .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 28px;
+        }
+
+        /* 表单布局 */
+        .form-row {
+            display: flex;
+            gap: 14px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+            flex: 1;
+        }
+        .form-group.full { flex: none; width: 100%; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text);
+            background: #fafafa;
+            outline: none;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .form-group select {
+            appearance: none;
+            cursor: pointer;
+            background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 14px center;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.08);
+        }
+
+        .range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .range-wrap input[type=range] {
+            flex: 1;
+            padding: 0;
+            accent-color: var(--primary);
+            height: 6px;
+        }
+        .range-wrap .age-display {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .error {
+            color: #e53935;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(26,115,232,0.35);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        .login-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <h1>新用户注册</h1>
+        <p class="subtitle">加入仁和医院在线预约平台</p>
+
+        <form id="registerForm">
+            <div class="form-group full">
+                <label>手机号</label>
+                <input type="text" id="phone" placeholder="请输入11位手机号">
+                <div class="error" id="phoneError"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="至少8位，含数字和字母">
+                    <div class="error" id="passwordError"></div>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" id="confirmPassword" placeholder="再次输入密码">
+                    <div class="error" id="confirmError"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="name" placeholder="1-10个汉字">
+                    <div class="error" id="nameError"></div>
+                </div>
+                <div class="form-group" style="max-width:100px;">
+                    <label>性别</label>
+                    <select id="gender">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group full">
+                <label>年龄</label>
+                <div class="range-wrap">
+                    <input type="range" id="age" min="1" max="120" value="25">
+                    <span class="age-display" id="ageValue">25</span> <span style="color:#999;">岁</span>
+                </div>
+            </div>
+
+            <div class="form-group full">
+                <label>身份证号</label>
+                <input type="text" id="idCard" placeholder="请输入18位身份证号">
+                <div class="error" id="idCardError"></div>
+            </div>
+
+            <div class="form-group full">
+                <label>医保卡号</label>
+                <input type="text" id="medicalCard" placeholder="请输入16位医保卡号">
+                <div class="error" id="medicalCardError"></div>
+            </div>
+
+            <div class="form-group full">
+                <label>家庭住址</label>
+                <textarea id="address" rows="2" placeholder="请输入详细地址"></textarea>
+                <div class="error" id="addressError"></div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="registerBtn">立即注册</button>
+        </form>
+
+        <p class="login-link">已有账号？<a href="登陆界面.html">去登录</a></p>
+    </div>
+
+    <script>
+        // 年龄滑块
+        const ageRange = document.getElementById('age');
+        const ageDisplay = document.getElementById('ageValue');
+        ageRange.addEventListener('input', function() {
+            ageDisplay.textContent = this.value;
+        });
+
+        // 表单提交
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+
+            const inputs = {
+                phone: document.getElementById('phone').value.trim(),
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value,
+                name: document.getElementById('name').value.trim(),
+                gender: document.getElementById('gender').value,
+                age: document.getElementById('age').value,
+                idCard: document.getElementById('idCard').value.trim().toUpperCase(),
+                medicalCard: document.getElementById('medicalCard').value.trim(),
+                address: document.getElementById('address').value.trim()
+            };
+
+            // 验证
+            const validations = [
+                { check: !inputs.phone, id: 'phoneError', msg: '请输入手机号' },
+                { check: !/^\d{11}$/.test(inputs.phone), id: 'phoneError', msg: '请输入有效的11位手机号' },
+                { check: inputs.password.length < 8, id: 'passwordError', msg: '密码至少8位' },
+                { check: !/(?=.*\d)(?=.*[a-zA-Z])/.test(inputs.password), id: 'passwordError', msg: '需包含数字和字母' },
+                { check: inputs.password !== inputs.confirmPassword, id: 'confirmError', msg: '两次密码不一致' },
+                { check: !inputs.name, id: 'nameError', msg: '姓名不能为空' },
+                { check: !/^[\u4e00-\u9fa5]{1,10}$/.test(inputs.name), id: 'nameError', msg: '请输入1-10个汉字' },
+                { check: !['男', '女'].includes(inputs.gender), id: 'genderError', msg: '请选择有效性别' },
+                { check: !inputs.idCard, id: 'idCardError', msg: '身份证不能为空' },
+                { check: !/^\d{17}[\dX]$/i.test(inputs.idCard), id: 'idCardError', msg: '身份证格式不正确' },
+                { check: !inputs.medicalCard, id: 'medicalCardError', msg: '医保卡号不能为空' },
+                { check: !/^\d{16}$/.test(inputs.medicalCard), id: 'medicalCardError', msg: '医保卡号必须为16位数字' },
+                { check: !inputs.address, id: 'addressError', msg: '家庭住址不能为空' }
+            ];
+
+            for (const v of validations) {
+                if (v.check) {
+                    const el = document.getElementById(v.id);
+                    if (el) { el.textContent = v.msg; el.style.display = 'block'; }
+                    return;
+                }
+            }
+
+            // 提交
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.textContent = '注册中...';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inputs)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('🎉 注册成功！');
+                    window.location.href = '登陆界面.html';
+                } else {
+                    alert(result.message || result.error?.message || '注册失败');
+                }
+            } catch (err) {
+                alert('网络请求失败，请检查服务是否启动');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '立即注册';
+            }
+        });
+    </script>
+</body>
+</html>

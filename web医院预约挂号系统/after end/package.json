@@ -1,0 +1,33 @@
+{
+  "name": "hospital-booking-system",
+  "version": "1.0.0",
+  "description": "医院预约挂号系统",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "prestart": "node checkEnv.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-fileupload": "^1.5.1",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^7.1.0",
+    "multer": "^2.0.0",
+    "mysql2": "^3.6.0",
+    "sharp": "^0.34.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.3.0",
+    "nodemon": "^3.0.2"
+  }
+}

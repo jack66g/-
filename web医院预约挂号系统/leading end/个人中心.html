@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 · 仁和医院</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #00bfa5;
+            --danger: #e53935;
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #e8f0fe 0%, #e0f7f4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 480px;
+            padding: 44px 36px 36px;
+        }
+        .card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .card .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 28px;
+        }
+
+        .input-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-wrap input {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text);
+            background: #fafafa;
+            outline: none;
+            transition: all 0.25s;
+        }
+        .input-wrap input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.08);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            white-space: nowrap;
+        }
+        .btn-primary:hover { box-shadow: 0 4px 16px rgba(26,115,232,0.35); transform: translateY(-1px); }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--text-light);
+            border: 1.5px solid #e0e0e0;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        .result-box.success { background: #e8f5e9; color: #2e7d32; display: block; }
+        .result-box.warning { background: #fff3e0; color: #e65100; display: block; }
+        .result-box.error { background: #ffebee; color: #c62828; display: block; }
+
+        /* 对话框 */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .overlay.show { display: flex; }
+        .dialog {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+        }
+        .dialog h3 { font-size: 18px; margin-bottom: 10px; color: var(--text); }
+        .dialog p { color: var(--text-light); margin-bottom: 20px; font-size: 14px; }
+        .dialog .btn-row { display: flex; gap: 10px; justify-content: center; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>📋 个人中心</h2>
+        <p class="subtitle">取消挂号 · 管理就诊记录</p>
+
+        <div class="input-wrap">
+            <input type="text" id="idCard" placeholder="请输入身份证号码查询" maxlength="18">
+            <button class="btn btn-primary" onclick="checkRegistration()">查询挂号</button>
+        </div>
+
+        <div class="result-box" id="result"></div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div class="overlay" id="confirmOverlay">
+        <div class="dialog">
+            <h3>⚠️ 确认取消挂号</h3>
+            <p>确定要取消当前挂号记录吗？取消后号源将释放。</p>
+            <div class="btn-row">
+                <button class="btn btn-danger" onclick="confirmCancel()">确认取消</button>
+                <button class="btn btn-outline" onclick="closeDialog()">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let isProcessing = false;
+
+        function showResult(msg, type) {
+            const box = document.getElementById('result');
+            box.textContent = msg;
+            box.className = 'result-box ' + type;
+        }
+
+        async function checkRegistration() {
+            if (isProcessing) return;
+            const idCard = document.getElementById('idCard').value.trim();
+            if (!/^\d{17}[\dXx]$/.test(idCard)) {
+                showResult('请输入有效的18位身份证号码', 'warning');
+                return;
+            }
+
+            isProcessing = true;
+            try {
+                const response = await axios.post('http://localhost:3000/api/cancel/check', { idCard });
+                if (response.data.code === 'FOUND_RECORD') {
+                    document.getElementById('confirmOverlay').classList.add('show');
+                } else {
+                    showResult(response.data.message || '未找到记录', 'warning');
+                }
+            } catch (error) {
+                showResult(error.response?.data?.message || '服务不可用，请稍后重试', 'error');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        async function confirmCancel() {
+            const idCard = document.getElementById('idCard').value.trim();
+            isProcessing = true;
+            try {
+                const response = await axios.post('http://localhost:3000/api/cancel/confirm', { idCard });
+                document.getElementById('confirmOverlay').classList.remove('show');
+                showResult(response.data.message || '取消成功', 'success');
+            } catch (error) {
+                showResult(error.response?.data?.message || '取消失败', 'error');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        function closeDialog() {
+            document.getElementById('confirmOverlay').classList.remove('show');
+        }
+    </script>
+</body>
+</html>

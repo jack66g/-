@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录 · 仁和医院后台</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-dark: #0d1542;
+            --accent: #3949ab;
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #1a237e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 背景装饰 */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%);
+        }
+
+        .card {
+            position: relative;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            padding: 48px 36px 36px;
+            text-align: center;
+        }
+
+        .card .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6f00, #ff8f00);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .card .shield {
+            width: 56px; height: 56px;
+            margin: 0 auto 14px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(26,35,126,0.3);
+        }
+
+        .card h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .card .subtitle {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        .input-wrap {
+            position: relative;
+        }
+        .input-wrap .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 17px;
+            color: #999;
+        }
+        .input-wrap input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text);
+            background: #fafafa;
+            outline: none;
+            transition: all 0.25s;
+        }
+        .input-wrap input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 13px 0;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(26,35,126,0.4);
+        }
+
+        .error-msg {
+            color: #e53935;
+            font-size: 13px;
+            margin-top: 14px;
+            display: none;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .hint {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+        .hint a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="card">
+        <div class="badge">🔐 后台管理</div>
+        <div class="shield">🛡️</div>
+        <h1>管理员登录</h1>
+        <p class="subtitle">仁和医院排班管理系统</p>
+
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label>管理员账号</label>
+                <div class="input-wrap">
+                    <span class="icon">👤</span>
+                    <input type="text" id="adminAccount" placeholder="请输入11位管理员账号" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>管理员密码</label>
+                <div class="input-wrap">
+                    <span class="icon">🔑</span>
+                    <input type="password" id="adminPassword" placeholder="请输入密码" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">确认登录</button>
+            <div class="error-msg" id="errorMsg"></div>
+        </form>
+
+        <p class="hint">
+            <a href="医院主界面.html">← 返回前台首页</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorElement = document.getElementById('errorMsg');
+            errorElement.style.display = 'none';
+
+            const account = document.getElementById('adminAccount').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (!/^\d{11}$/.test(account)) {
+                showError('请输入有效的11位管理员账号');
+                return;
+            }
+            if (password.length < 8) {
+                showError('密码长度至少8位');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account, password })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = '管理员排班后台.html';
+                } else {
+                    showError(result.message || '登录失败：账号或密码错误');
+                }
+            } catch (err) {
+                showError('网络连接异常，请确认服务已启动');
+                console.error(err);
+            }
+        });
+
+        function showError(message) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

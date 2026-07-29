@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>科室挂号 · 仁和医院</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #00bfa5;
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --radius: 14px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(160deg, #e8f0fe 0%, #e0f7f4 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .dept-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .dept-card:hover {
+            box-shadow: 0 6px 28px rgba(26,115,232,0.14);
+        }
+
+        .dept-header {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            transition: background 0.25s;
+        }
+        .dept-header:hover { background: #f8fafd; }
+
+        .dept-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .icon-blue { background: #e3f0ff; }
+        .icon-green { background: #e0f7f4; }
+        .icon-pink { background: #fce4ec; }
+        .icon-orange { background: #fff3e0; }
+        .icon-purple { background: #f3e5f5; }
+        .icon-teal { background: #e0f2f1; }
+        .icon-amber { background: #fff8e1; }
+        .icon-indigo { background: #e8eaf6; }
+
+        .dept-name {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .dept-count {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .dept-arrow {
+            font-size: 12px;
+            color: #bbb;
+            transition: transform 0.3s;
+        }
+        .dept-card.open .dept-arrow { transform: rotate(180deg); }
+        .dept-card.open .dept-header { background: #f4f8ff; }
+
+        .sub-list {
+            display: none;
+            padding: 0 20px 16px;
+        }
+        .dept-card.open .sub-list { display: block; }
+
+        .sub-link {
+            display: block;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: var(--primary);
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+        .sub-link:hover {
+            background: #e8f0fe;
+            color: var(--primary-dark);
+            padding-left: 22px;
+        }
+        .sub-link.disabled {
+            color: #bbb;
+            pointer-events: none;
+        }
+
+        .back-link {
+            margin-top: 36px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>🏥 选择挂号科室</h1>
+    <p class="subtitle">请点击科室查看可挂号的门诊类型</p>
+
+    <div class="dept-grid" id="deptGrid">
+        <!-- JS动态生成 -->
+    </div>
+
+    <a href="医院主界面.html" class="back-link">← 返回首页</a>
+
+    <script>
+        const departments = [
+            { name: '内科', icon: '🩺', color: 'icon-blue', subs: [
+                { name: '内分泌代谢门诊', href: '内分泌代谢门诊.html' },
+                { name: '心血管内科门诊', href: '心血管内科门诊.html' },
+                { name: '呼吸内科门诊', href: '呼吸内科门诊.html' },
+                { name: '消化内科门诊', href: '消化内科门诊.html' },
+                { name: '肾内科门诊', href: '肾内科门诊.html' }
+            ]},
+            { name: '外科', icon: '🏥', color: 'icon-green', subs: [
+                { name: '普通外科门诊', href: '普通外科门诊.html' },
+                { name: '骨科门诊', href: '骨科门诊.html' },
+                { name: '神经外科门诊', href: '神经外科门诊.html' },
+                { name: '胸外科门诊', href: '胸外科门诊.html' },
+                { name: '泌尿外科门诊', href: '泌尿外科门诊.html' }
+            ]},
+            { name: '妇产科', icon: '🤰', color: 'icon-pink', subs: [
+                { name: '妇科门诊', href: '妇科门诊.html' },
+                { name: '产科门诊', href: '产科门诊.html' },
+                { name: '计划生育门诊', href: '计划生育门诊.html' },
+                { name: '不孕不育门诊', href: '不孕不育门诊.html' }
+            ]},
+            { name: '儿科', icon: '👶', color: 'icon-orange', subs: [
+                { name: '新生儿科门诊', href: '新生儿科门诊.html' },
+                { name: '儿童呼吸科门诊', href: '#', disabled: true },
+                { name: '儿童内分泌门诊', href: '#', disabled: true },
+                { name: '儿童保健门诊', href: '#', disabled: true }
+            ]},
+            { name: '眼科', icon: '👁️', color: 'icon-purple', subs: [
+                { name: '青光眼门诊', href: '#', disabled: true },
+                { name: '白内障门诊', href: '#', disabled: true },
+                { name: '眼底病门诊', href: '#', disabled: true }
+            ]},
+            { name: '口腔科', icon: '🦷', color: 'icon-teal', subs: [
+                { name: '牙体牙髓门诊', href: '#', disabled: true },
+                { name: '正畸门诊', href: '#', disabled: true },
+                { name: '种植牙门诊', href: '#', disabled: true }
+            ]},
+            { name: '脑系科', icon: '🧠', color: 'icon-amber', subs: [
+                { name: '神经内科门诊', href: '#', disabled: true },
+                { name: '癫痫门诊', href: '#', disabled: true },
+                { name: '脑血管病门诊', href: '#', disabled: true }
+            ]},
+            { name: '中医科', icon: '🌿', color: 'icon-indigo', subs: [
+                { name: '中医内科', href: '#', disabled: true },
+                { name: '针灸推拿科', href: '#', disabled: true },
+                { name: '中医养生门诊', href: '#', disabled: true }
+            ]}
+        ];
+
+        const grid = document.getElementById('deptGrid');
+
+        departments.forEach((dept, idx) => {
+            const card = document.createElement('div');
+            card.className = 'dept-card';
+            card.innerHTML = `
+                <div class="dept-header" onclick="toggleDept(this)">
+                    <div class="dept-icon ${dept.color}">${dept.icon}</div>
+                    <span class="dept-name">${dept.name}</span>
+                    <span class="dept-count">${dept.subs.length}个门诊</span>
+                    <span class="dept-arrow">▼</span>
+                </div>
+                <div class="sub-list">
+                    ${dept.subs.map(s => 
+                        `<a href="${s.href}" class="sub-link${s.disabled ? ' disabled' : ''}">
+                            ${s.disabled ? '🔜' : '•'} ${s.name}${s.disabled ? ' (即将开放)' : ''}
+                        </a>`
+                    ).join('')}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        function toggleDept(header) {
+            const card = header.parentElement;
+            const isOpen = card.classList.contains('open');
+            
+            // 关闭所有
+            document.querySelectorAll('.dept-card').forEach(c => c.classList.remove('open'));
+            
+            // 打开当前（除非已经打开）
+            if (!isOpen) card.classList.add('open');
+        }
+
+        // 点击外部关闭
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dept-card')) {
+                document.querySelectorAll('.dept-card').forEach(c => c.classList.remove('open'));
+            }
+        });
+    </script>
+</body>
+</html>

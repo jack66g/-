@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>仁和医院 · 预约挂号平台</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #00bfa5;
+            --bg-start: #e8f0fe;
+            --bg-end: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #5f6368;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 32px rgba(26,115,232,0.18);
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+            background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ========== 顶部导航栏 ========== */
+        .top-bar {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .top-bar .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .top-bar .brand img { width: 40px; height: 40px; border-radius: 10px; }
+        .top-bar nav a {
+            margin-left: 24px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.25s;
+        }
+        .top-bar nav a:hover { color: var(--primary); }
+        .top-bar nav a.btn-admin {
+            background: var(--primary);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .top-bar nav a.btn-admin:hover { background: var(--primary-dark); }
+
+        /* ========== Hero 头部 ========== */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .hero .subtitle {
+            font-size: 17px;
+            color: var(--text-light);
+            max-width: 620px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ========== 四个快捷入口 ========== */
+        .quick-actions {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            padding: 10px 20px 50px;
+        }
+        .quick-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            min-width: 130px;
+        }
+        .quick-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+        .quick-card .icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+        .quick-card .icon-blue { background: #e3f0ff; }
+        .quick-card .icon-green { background: #e0f7f4; }
+        .quick-card .icon-orange { background: #fff3e0; }
+        .quick-card .icon-purple { background: #f3e5f5; }
+        .quick-card .label {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .quick-card .hint {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* ========== 医院简介 ========== */
+        .about {
+            max-width: 780px;
+            margin: 0 auto 50px;
+            padding: 32px 40px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .about h2 {
+            font-size: 22px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+        .about p {
+            color: var(--text-light);
+            line-height: 1.9;
+            font-size: 14px;
+        }
+
+        /* ========== 轮播图 ========== */
+        .carousel-wrapper {
+            max-width: 1100px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+        .carousel-container {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            aspect-ratio: 16 / 5;
+        }
+        .carousel-slide {
+            display: flex;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.25,0.1,0.25,1);
+        }
+        .slide-image {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .slide-image.active { display: block; }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text);
+            transition: all 0.3s;
+            user-select: none;
+            backdrop-filter: blur(6px);
+        }
+        .carousel-arrow:hover { background: #fff; box-shadow: var(--shadow); }
+        .prev { left: 16px; }
+        .next { right: 16px; }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .indicator.active {
+            background: #fff;
+            width: 26px;
+            border-radius: 5px;
+        }
+
+        /* ========== Footer ========== */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <div class="brand">
+            <img src="医院图标.png" alt="logo" />
+            仁和医院
+        </div>
+        <nav>
+            <a href="医院主界面.html">首页</a>
+            <a href="预约挂号界面.html">预约挂号</a>
+            <a href="个人中心.html">个人中心</a>
+            <a href="管理员登录.html" class="btn-admin">管理员入口</a>
+        </nav>
+    </div>
+
+    <!-- 头部 -->
+    <div class="hero">
+        <h1>仁和医院预约挂号平台</h1>
+        <p class="subtitle">
+            三级甲等综合性医院 · 集医疗、教学、科研为一体<br />
+            30+ 临床科室 · 国际领先设备 · 年接诊超百万人次
+        </p>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="quick-actions">
+        <a href="个人中心.html" class="quick-card">
+            <div class="icon-circle icon-blue">👤</div>
+            <span class="label">个人中心</span>
+            <span class="hint">管理就诊信息</span>
+        </a>
+        <a href="登陆界面.html" class="quick-card">
+            <div class="icon-circle icon-green">📅</div>
+            <span class="label">预约挂号</span>
+            <span class="hint">在线预约医生</span>
+        </a>
+        <div class="quick-card">
+            <div class="icon-circle icon-orange">📋</div>
+            <span class="label">就医指南</span>
+            <span class="hint">就诊流程说明</span>
+        </div>
+        <div class="quick-card">
+            <div class="icon-circle icon-purple">📍</div>
+            <span class="label">医院位置</span>
+            <span class="hint">交通导航指引</span>
+        </div>
+    </div>
+
+    <!-- 医院简介 -->
+    <div class="about">
+        <h2>🏥 关于我们</h2>
+        <p>
+            仁和医院始建于1950年，始终坚持"以患者为中心"的服务理念，
+            提供24小时无假日门诊服务，开通绿色急救通道。通过本系统，您可以安全便捷地
+            完成在线挂号、查看报告、管理健康档案等操作，我们采用多重加密技术全力保障您的隐私安全。
+        </p>
+    </div>
+
+    <!-- 轮播图 -->
+    <div class="carousel-wrapper">
+        <div class="carousel-container">
+            <div class="carousel-slide">
+                <img src="001.jpg" class="slide-image active" alt="医院环境" />
+                <img src="002.jpg" class="slide-image" alt="医院环境" />
+                <img src="003.jpg" class="slide-image" alt="医院环境" />
+            </div>
+            <div class="carousel-arrow prev">❮</div>
+            <div class="carousel-arrow next">❯</div>
+            <div class="carousel-indicators">
+                <span class="indicator active"></span>
+                <span class="indicator"></span>
+                <span class="indicator"></span>
+            </div>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 仁和医院 · 预约挂号平台 · 全力保障您的隐私安全</footer>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-image');
+        const indicators = document.querySelectorAll('.indicator');
+        let autoPlay = setInterval(nextSlide, 3500);
+
+        function updateSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            indicators.forEach(i => i.classList.remove('active'));
+            currentSlide = (index + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            indicators[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() { updateSlide(currentSlide + 1); }
+        function prevSlide() { updateSlide(currentSlide - 1); }
+
+        document.querySelector('.next').addEventListener('click', () => {
+            clearInterval(autoPlay); nextSlide(); autoPlay = setInterval(nextSlide, 3500);
+        });
+        document.querySelector('.prev').addEventListener('click', () => {
+            clearInterval(autoPlay); prevSlide(); autoPlay = setInterval(nextSlide, 3500);
+        });
+        indicators.forEach((ind, i) => {
+            ind.addEventListener('click', () => {
+                clearInterval(autoPlay); updateSlide(i); autoPlay = setInterval(nextSlide, 3500);
+            });
+        });
+        document.querySelector('.carousel-container').addEventListener('mouseenter', () => clearInterval(autoPlay));
+        document.querySelector('.carousel-container').addEventListener('mouseleave', () => { autoPlay = setInterval(nextSlide, 3500); });
+    </script>
+</body>
+</html>

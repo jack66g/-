@@ -1,0 +1,473 @@
+<!-- 管理员排班后台.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>医生信息管理系统</title>
+    <style>
+      /* 所有样式保持不变 */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 30px;
+      }
+      .management-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 30px;
+      }
+      .management-section {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .section-title {
+        color: #2c3e50;
+        margin: 0 0 25px 0;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #3498db;
+        font-size: 20px;
+      }
+      .upload-area {
+        border: 2px dashed #bdc3c7;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+      .upload-area:hover {
+        border-color: #3498db;
+      }
+      .upload-preview {
+        max-width: 100%;
+        max-height: 100%;
+        display: none;
+      }
+      .plus-icon {
+        font-size: 48px;
+        color: #7f8c8d;
+        transition: transform 0.3s;
+      }
+      .upload-area:hover .plus-icon {
+        transform: scale(1.1);
+      }
+      .form-group {
+        margin-bottom: 18px;
+      }
+      .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #34495e;
+        font-weight: 500;
+      }
+      .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #bdc3c7;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+      .form-input:focus {
+        border-color: #3498db;
+        outline: none;
+      }
+      .form-textarea {
+        height: 100px;
+        resize: vertical;
+      }
+      .submit-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        width: 100%;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 15px;
+      }
+      .submit-btn:hover {
+        background: #2980b9;
+      }
+      .time-slot-group {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        align-items: center;
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .time-label {
+        color: #7f8c8d;
+        font-size: 14px;
+      }
+      .error-message {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+      }
+      .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="management-container">
+      <!-- 添加医生模块 -->
+      <div class="management-section">
+        <h2 class="section-title">添加新医生</h2>
+        <form id="addDoctorForm">
+          <div
+            class="upload-area"
+            onclick="document.getElementById('addPhoto').click()"
+          >
+            <div class="plus-icon">+</div>
+            <img class="upload-preview" id="addPreview" />
+          </div>
+          <input type="file" id="addPhoto" accept="image/*" hidden />
+
+          <div class="form-group">
+            <label class="form-label">医生工号</label>
+            <input
+              type="text"
+              class="form-input"
+              id="addDoctorId"
+              pattern="\d{6}"
+              maxlength="6"
+              required
+            />
+            <div class="error-message" id="addIdError"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">医生姓名</label>
+            <input type="text" class="form-input" id="addDoctorName" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">医生简介</label>
+            <textarea
+              class="form-input form-textarea"
+              id="addIntroduction"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" id="addSubmit">
+            添加医生信息
+          </button>
+        </form>
+      </div>
+
+      <!-- 修改信息模块 -->
+      <div class="management-section">
+        <h2 class="section-title">修改医生信息</h2>
+        <form id="editDoctorForm">
+          <div class="form-group">
+            <label class="form-label">输入医生工号</label>
+            <input
+              type="text"
+              class="form-input"
+              id="editDoctorId"
+              pattern="\d{6}"
+              maxlength="6"
+              required
+            />
+            <div class="error-message" id="editIdError"></div>
+          </div>
+
+          <div
+            class="upload-area"
+            onclick="document.getElementById('editPhoto').click()"
+          >
+            <div class="plus-icon">+</div>
+            <img class="upload-preview" id="editPreview" />
+          </div>
+          <input type="file" id="editPhoto" accept="image/*" hidden />
+
+          <div class="form-group">
+            <label class="form-label">医生姓名</label>
+            <input
+              type="text"
+              class="form-input"
+              id="editDoctorName"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">医生简介</label>
+            <textarea
+              class="form-input form-textarea"
+              id="editIntroduction"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" id="editSubmit">
+            更新医生信息
+          </button>
+        </form>
+      </div>
+
+      <!-- 号源分配模块 -->
+      <div class="management-section">
+        <h2 class="section-title">号源分配管理</h2>
+        <form id="allocateForm">
+          <div class="form-group">
+            <label class="form-label">输入医生工号</label>
+            <input
+              type="text"
+              class="form-input"
+              id="allocateDoctorId"
+              pattern="\d{6}"
+              maxlength="6"
+              required
+            />
+            <div class="error-message" id="allocateIdError"></div>
+          </div>
+
+          <div class="time-slot-group">
+            <span class="time-label">8:00-10:00</span>
+            <input
+              type="text"
+              class="form-input"
+              id="source1"
+              pattern="\d{2}"
+              maxlength="2"
+              required
+            />
+          </div>
+
+          <div class="time-slot-group">
+            <span class="time-label">10:00-12:00</span>
+            <input
+              type="text"
+              class="form-input"
+              id="source2"
+              pattern="\d{2}"
+              maxlength="2"
+              required
+            />
+          </div>
+
+          <div class="time-slot-group">
+            <span class="time-label">14:00-16:00</span>
+            <input
+              type="text"
+              class="form-input"
+              id="source3"
+              pattern="\d{2}"
+              maxlength="2"
+              required
+            />
+          </div>
+
+          <div class="time-slot-group">
+            <span class="time-label">16:00-18:00</span>
+            <input
+              type="text"
+              class="form-input"
+              id="source4"
+              pattern="\d{2}"
+              maxlength="2"
+              required
+            />
+          </div>
+
+          <button type="submit" class="submit-btn" id="allocateSubmit">
+            确认号源分配
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // 图片预览处理
+      function setupImageUpload(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+
+        input.addEventListener("change", function () {
+          const file = this.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              preview.src = e.target.result;
+              preview.style.display = "block";
+              input.previousElementSibling.querySelector(
+                ".plus-icon"
+              ).style.display = "none";
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      setupImageUpload("addPhoto", "addPreview");
+      setupImageUpload("editPhoto", "editPreview");
+
+      // 修改后的通用表单处理函数
+      async function handleFormSubmit(submitBtnId, method, formData) {
+        const submitBtn = document.getElementById(submitBtnId);
+        try {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<div class="loader"></div> 处理中...';
+
+          const endpoint = getEndpoint(submitBtnId);
+          const response = await fetch(
+            `http://localhost:3000/api/${endpoint}`,
+            {
+              method,
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message);
+          }
+
+          alert("操作成功！");
+          location.reload();
+        } catch (error) {
+          alert(`操作失败: ${error.message}`);
+          console.error(error);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML =
+            method === "POST"
+              ? "添加医生信息"
+              : method === "PUT"
+              ? "更新医生信息"
+              : "确认号源分配";
+        }
+      }
+
+      // 接口路径映射
+      function getEndpoint(submitBtnId) {
+        const map = {
+          addSubmit: "doctors",
+          editSubmit: `doctors/${
+            document.getElementById("editDoctorId").value
+          }`,
+          allocateSubmit: `doctors/${
+            document.getElementById("allocateDoctorId").value
+          }/sources`,
+        };
+        return map[submitBtnId];
+      }
+
+      // 添加医生表单提交
+      document
+        .getElementById("addDoctorForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData();
+          formData.append(
+            "doctorId",
+            document.getElementById("addDoctorId").value
+          );
+          formData.append(
+            "name",
+            document.getElementById("addDoctorName").value
+          );
+          formData.append(
+            "introduction",
+            document.getElementById("addIntroduction").value
+          );
+          formData.append(
+            "photo",
+            document.getElementById("addPhoto").files[0]
+          );
+          await handleFormSubmit("addSubmit", "POST", formData);
+        });
+
+      // 修改医生表单提交
+      document
+        .getElementById("editDoctorForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData();
+          formData.append(
+            "name",
+            document.getElementById("editDoctorName").value
+          );
+          formData.append(
+            "introduction",
+            document.getElementById("editIntroduction").value
+          );
+          formData.append(
+            "photo",
+            document.getElementById("editPhoto").files[0]
+          );
+          await handleFormSubmit("editSubmit", "PUT", formData);
+        });
+
+     // 修改号源分配表单提交逻辑
+document.getElementById('allocateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // 获取医生工号
+    const doctorId = document.getElementById('allocateDoctorId').value;
+    if (!/^\d{6}$/.test(doctorId)) {
+        alert('请输入有效的6位医生工号');
+        return;
+    }
+
+    // 构建请求数据
+    const allocationData = {
+        source1: document.getElementById('source1').value,
+        source2: document.getElementById('source2').value,
+        source3: document.getElementById('source3').value,
+        source4: document.getElementById('source4').value
+    };
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/doctors/${doctorId}/sources`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(allocationData)
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || '更新失败');
+        
+        alert('号源更新成功！');
+        location.reload();
+    } catch (error) {
+        alert(`操作失败: ${error.message}`);
+        console.error('Error:', error);
+    }
+});
+    </script>
+  </body>
+</html>
