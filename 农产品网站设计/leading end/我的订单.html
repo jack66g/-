@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单 - 农产品供需平台</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f5f7f5;
+            --text: #333;
+            --text-light: #888;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .navbar .logo-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .navbar .logo-text { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .navbar .nav-links { display: flex; gap: 24px; }
+        .navbar .nav-links a { text-decoration: none; color: #555; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: all 0.3s; }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--primary); background: #e8f5e9; }
+
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .container h1 { font-size: 24px; color: var(--text); margin-bottom: 24px; }
+
+        .empty-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            color: #999;
+        }
+        .empty-card .icon { font-size: 64px; margin-bottom: 16px; }
+        .empty-card h2 { font-size: 18px; color: #666; margin-bottom: 8px; }
+        .empty-card p { font-size: 14px; }
+        .empty-card a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        .order-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            display: flex;
+            gap: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .order-card img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .order-card .info { flex: 1; }
+        .order-card .info h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+        .order-card .info .price { font-size: 22px; color: #e74c3c; font-weight: 700; margin-bottom: 8px; }
+        .order-card .info .meta { font-size: 13px; color: var(--text-light); }
+        .order-card .info .status { display: inline-block; margin-top: 10px; padding: 4px 12px; background: #e8f5e9; color: var(--primary-dark); border-radius: 20px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="Main.html" class="logo-area">
+            <img src="002.jpg" alt="logo" class="logo-img">
+            <span class="logo-text">宁波农产品供需平台</span>
+        </a>
+        <div class="nav-links">
+            <a href="Main.html">首页</a>
+            <a href="我的订单.html" class="active">我的订单</a>
+            <a href="投诉界面.html">投诉建议</a>
+            <a href="农产品供需网站.html">退出</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>📦 我的订单</h1>
+        <div id="orderContent">
+            <div class="empty-card">
+                <div class="icon">📭</div>
+                <h2>加载中...</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const productId = new URLSearchParams(window.location.search).get('id') || '123456';
+
+        async function loadOrder() {
+            const container = document.getElementById('orderContent');
+            try {
+                const resp = await fetch(`http://localhost:3011/api/products/${productId}`);
+                if (!resp.ok) throw new Error('加载失败');
+                const product = await resp.json();
+                const sales = Number(product.temp_sales);
+
+                if (sales > 1) {
+                    container.innerHTML = `
+                        <div class="order-card">
+                            <img src="${product.product_image || '001.jpg'}" alt="${product.product_name}">
+                            <div class="info">
+                                <h3>${product.product_name}</h3>
+                                <div class="price">¥${product.price}</div>
+                                <div class="meta">购买数量：${sales} 份</div>
+                                <span class="status">商品等待商家发货</span>
+                                <div class="meta" style="margin-top:8px">支持7天无理由退货 · 假一赔四 · 15天价保</div>
+                            </div>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-card">
+                            <div class="icon">🛒</div>
+                            <h2>您还没有购买商品</h2>
+                            <p>快去<a href="Main.html">挑选心仪的商品</a>吧~</p>
+                        </div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="empty-card">
+                        <div class="icon">⚠️</div>
+                        <h2>数据加载失败</h2>
+                        <p>请确认后端服务已启动</p>
+                    </div>`;
+            }
+        }
+        loadOrder();
+    </script>
+</body>
+</html>

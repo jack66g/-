@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>忘记密码 - 农产品供需平台</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f0f7f0;
+            --text: #333;
+            --text-light: #888;
+            --border: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px 36px;
+            width: 400px;
+            max-width: 100%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            text-align: center;
+            font-size: 22px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .card .sub {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 14px; color: #555; margin-bottom: 5px; font-weight: 500; }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            outline: none;
+            background: #fafafa;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(76,175,80,0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76,175,80,0.4); }
+        .back-link { text-align: center; margin-top: 16px; font-size: 13px; }
+        .back-link a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .toast {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            text-align: center;
+        }
+        .toast.error { background: #fdecea; color: #c62828; border: 1px solid #ef9a9a; display: block; }
+        .toast.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🔑 忘记密码</h2>
+        <p class="sub">重置您的登录密码</p>
+        <div id="toast" class="toast"></div>
+
+        <div class="form-group">
+            <label>手机号</label>
+            <input type="tel" id="phone" placeholder="请输入注册手机号" maxlength="11">
+        </div>
+        <div class="form-group">
+            <label>新密码（8-16位）</label>
+            <input type="password" id="new-password" placeholder="请输入新密码" maxlength="16">
+        </div>
+        <div class="form-group">
+            <label>确认新密码</label>
+            <input type="password" id="confirm-password" placeholder="请再次输入新密码" maxlength="16">
+        </div>
+
+        <button class="btn btn-primary" onclick="handleReset()">确认修改密码</button>
+        <div class="back-link"><a href="农产品供需网站.html">← 返回登录</a></div>
+    </div>
+
+    <script>
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type;
+        }
+
+        async function handleReset() {
+            const phone = document.getElementById('phone').value.trim();
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (!phone || !newPassword || !confirmPassword) return showToast('请填写所有字段', 'error');
+            if (!/^1[3-9]\d{9}$/.test(phone)) return showToast('请输入有效的手机号', 'error');
+            if (newPassword.length < 8 || newPassword.length > 16) return showToast('密码长度需为8-16位', 'error');
+            if (newPassword !== confirmPassword) return showToast('两次输入的密码不一致', 'error');
+
+            try {
+                const resp = await fetch('http://localhost:3001/api/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, newPassword, confirmPassword })
+                });
+                const result = await resp.json();
+                if (resp.ok) {
+                    showToast('密码修改成功！即将返回登录页...', 'success');
+                    setTimeout(() => window.location.href = '农产品供需网站.html', 1200);
+                } else {
+                    const errs = Array.isArray(result.errors) ? result.errors.join('；') : '修改失败';
+                    showToast(errs, 'error');
+                }
+            } catch (err) {
+                showToast('网络连接异常，请确认服务已启动', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

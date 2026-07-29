@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 农产品供需平台</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f5f7f5;
+            --text: #333;
+            --text-light: #888;
+            --border: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .navbar span { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .navbar a { text-decoration: none; color: #555; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: all 0.3s; }
+        .navbar a:hover { color: var(--primary); background: #e8f5e9; }
+
+        .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+        .section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .section h2 { font-size: 20px; color: var(--text); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #e8f5e9; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; color: #555; margin-bottom: 5px; font-weight: 500; }
+        .form-group input {
+            width: 100%; padding: 10px 14px; border: 2px solid var(--border);
+            border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;
+        }
+        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(76,175,80,0.1); }
+        .form-group .error { color: #e74c3c; font-size: 12px; margin-top: 4px; display: none; }
+        .btn {
+            padding: 10px 28px; border: none; border-radius: 8px;
+            font-size: 15px; cursor: pointer; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .upload-box {
+            width: 100px; height: 100px; border: 2px dashed #ccc;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 10px; margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+        .upload-box:hover { border-color: var(--primary); background: #f9fdf9; }
+        .upload-box span { font-size: 28px; color: #ccc; }
+        .preview-img { max-width: 200px; display: none; margin-bottom: 12px; border-radius: 8px; }
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 999;
+            animation: slideDown 0.4s ease; display: none;
+        }
+        .toast.error { background: #fdecea; color: #c62828; border: 1px solid #ef9a9a; display: block; }
+        .toast.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; display: block; }
+        @keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span>🌾 农产品管理系统</span>
+        <a href="root.html">退出登录</a>
+    </nav>
+    <div class="container">
+        <div id="toast" class="toast"></div>
+
+        <!-- 新增产品 -->
+        <div class="section">
+            <h2>➕ 新增农产品</h2>
+            <div class="upload-box" onclick="document.getElementById('file-input').click()">
+                <span>+</span>
+                <input type="file" id="file-input" hidden accept="image/*">
+            </div>
+            <img id="preview" class="preview-img">
+            <div class="form-group">
+                <label>产品ID（6位数字）</label>
+                <input type="text" id="product-id" maxlength="6" placeholder="如：123456">
+                <div class="error" id="id-error"></div>
+            </div>
+            <div class="form-group">
+                <label>产品名称（≤10字）</label>
+                <input type="text" id="product-name" maxlength="10" placeholder="如：余姚杨梅">
+                <div class="error" id="name-error"></div>
+            </div>
+            <div class="form-group">
+                <label>产品价格（元）</label>
+                <input type="number" id="price" step="0.01" placeholder="如：29.90">
+                <div class="error" id="price-error"></div>
+            </div>
+            <div class="form-group">
+                <label>产品重量（g）</label>
+                <input type="number" id="weight" step="0.01" placeholder="如：500">
+                <div class="error" id="weight-error"></div>
+            </div>
+            <button class="btn btn-primary" onclick="submitProduct()">提交新产品</button>
+        </div>
+
+        <!-- 修改产品 -->
+        <div class="section">
+            <h2>✏️ 修改产品信息</h2>
+            <div class="form-group">
+                <label>产品ID（6位数字）</label>
+                <input type="text" id="edit-id" maxlength="6" placeholder="如：123456">
+                <div class="error" id="edit-id-error"></div>
+            </div>
+            <div class="form-group">
+                <label>新价格</label>
+                <input type="number" id="new-price" step="0.01" placeholder="如：39.90">
+                <div class="error" id="new-price-error"></div>
+            </div>
+            <div class="form-group">
+                <label>新重量</label>
+                <input type="number" id="new-weight" step="0.01" placeholder="如：600">
+                <div class="error" id="new-weight-error"></div>
+            </div>
+            <button class="btn btn-primary" onclick="updateProduct()">修改产品信息</button>
+        </div>
+    </div>
+
+    <script>
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type;
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+        function showErr(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        async function compressImage(file) {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX = 800;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+                        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.getElementById('file-input').addEventListener('change', async e => {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    const compressed = await compressImage(file);
+                    document.getElementById('preview').style.display = 'block';
+                    document.getElementById('preview').src = compressed;
+                } catch (err) {
+                    showToast('图片处理失败', 'error');
+                }
+            }
+        });
+
+        async function submitProduct() {
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+            const data = {
+                id: document.getElementById('product-id').value.trim(),
+                name: document.getElementById('product-name').value.trim(),
+                price: document.getElementById('price').value,
+                weight: document.getElementById('weight').value,
+                image: document.getElementById('preview').src
+            };
+            if (!/^\d{6}$/.test(data.id)) return showErr('id-error', '产品ID必须为6位数字');
+            if (!data.name || data.name.length > 10) return showErr('name-error', '名称不能为空且不超过10字');
+            if (!data.price || data.price <= 0) return showErr('price-error', '请输入有效价格');
+            if (!data.weight || data.weight <= 0) return showErr('weight-error', '请输入有效重量');
+
+            try {
+                const resp = await fetch('http://localhost:3006/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await resp.json();
+                if (!resp.ok) throw new Error(result.message || '提交失败');
+                showToast('产品添加成功！', 'success');
+                ['product-id','product-name','price','weight'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('preview').style.display = 'none';
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        async function updateProduct() {
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+            const data = {
+                id: document.getElementById('edit-id').value.trim(),
+                price: document.getElementById('new-price').value,
+                weight: document.getElementById('new-weight').value
+            };
+            if (!/^\d{6}$/.test(data.id)) return showErr('edit-id-error', '产品ID必须为6位数字');
+            if (!data.price || data.price <= 0) return showErr('new-price-error', '请输入有效价格');
+            if (!data.weight || data.weight <= 0) return showErr('new-weight-error', '请输入有效重量');
+
+            try {
+                const resp = await fetch(`http://localhost:3006/api/products/${data.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ price: data.price, weight: data.weight })
+                });
+                const result = await resp.json();
+                if (!resp.ok) throw new Error(result.message || '更新失败');
+                showToast('产品信息更新成功！', 'success');
+                ['edit-id','new-price','new-weight'].forEach(id => document.getElementById(id).value = '');
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+    </script>
+</body>
+</html>

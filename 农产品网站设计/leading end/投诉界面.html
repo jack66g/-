@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投诉建议 - 农产品供需平台</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f5f7f5;
+            --text: #333;
+            --text-light: #888;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .navbar .logo-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .navbar .logo-text { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .navbar .nav-links { display: flex; gap: 24px; }
+        .navbar .nav-links a {
+            text-decoration: none; color: #555; font-size: 14px;
+            padding: 6px 12px; border-radius: 6px; transition: all 0.3s;
+        }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--primary); background: #e8f5e9; }
+
+        .container { max-width: 600px; margin: 60px auto; padding: 0 20px; text-align: center; }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 48px 36px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .card .icon { font-size: 64px; margin-bottom: 16px; }
+        .card h1 { font-size: 24px; color: var(--text); margin-bottom: 12px; }
+        .card p { color: var(--text-light); font-size: 15px; line-height: 1.8; margin-bottom: 8px; }
+        .card .phone {
+            display: inline-block;
+            font-size: 28px;
+            color: #e74c3c;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 12px 0;
+            padding: 8px 24px;
+            background: #fff5f5;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="Main.html" class="logo-area">
+            <img src="002.jpg" alt="logo" class="logo-img">
+            <span class="logo-text">宁波农产品供需平台</span>
+        </a>
+        <div class="nav-links">
+            <a href="Main.html">首页</a>
+            <a href="我的订单.html">我的订单</a>
+            <a href="投诉界面.html" class="active">投诉建议</a>
+            <a href="农产品供需网站.html">退出</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="icon">📞</div>
+            <h1>投诉与建议</h1>
+            <p>如您对商品或服务有任何不满意，<br>请拨打客服热线进行反馈</p>
+            <div class="phone">400-888-1234</div>
+            <p style="font-size:13px; color:#aaa;">服务时间：周一至周日 9:00-21:00</p>
+        </div>
+    </div>
+</body>
+</html>

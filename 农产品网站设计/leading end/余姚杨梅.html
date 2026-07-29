@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>余姚杨梅 - 农产品供需平台</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f5f7f5;
+            --text: #333;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .navbar .logo-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .navbar .logo-text { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .navbar .nav-links { display: flex; gap: 24px; }
+        .navbar .nav-links a {
+            text-decoration: none; color: #555; font-size: 14px;
+            padding: 6px 12px; border-radius: 6px; transition: all 0.3s;
+        }
+        .navbar .nav-links a:hover { color: var(--primary); background: #e8f5e9; }
+
+        .main-wrap { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+        .hero {
+            background: linear-gradient(135deg, #e8f5e9, #fff);
+            border-radius: 16px;
+            padding: 36px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .hero h1 { font-size: 26px; color: var(--primary-dark); margin-bottom: 8px; }
+        .hero p { color: #888; font-size: 14px; }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+        }
+        .product-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(76,175,80,0.15);
+        }
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .product-card .info { padding: 16px; }
+        .product-card .name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .product-card .price { font-size: 20px; color: #e74c3c; font-weight: 700; }
+        .product-card .price small { font-size: 13px; font-weight: 400; color: #999; }
+        .empty { text-align: center; padding: 60px; color: #999; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="Main.html" class="logo-area">
+            <img src="002.jpg" alt="logo" class="logo-img">
+            <span class="logo-text">宁波农产品供需平台</span>
+        </a>
+        <div class="nav-links">
+            <a href="Main.html">首页</a>
+            <a href="我的订单.html">我的订单</a>
+            <a href="投诉界面.html">投诉建议</a>
+            <a href="农产品供需网站.html">退出</a>
+        </div>
+    </nav>
+
+    <div class="main-wrap">
+        <div class="hero">
+            <h1>🍒 余姚杨梅</h1>
+            <p>中国国家地理标志产品，产自浙江余姚七千年河姆渡文明发祥地。果实浑圆饱满，色泽紫黑发亮，肉质细嫩柔软，汁水丰盈酸甜适口。</p>
+        </div>
+        <div class="product-grid" id="productContainer">
+            <div class="empty">⏳ 加载中...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadProducts() {
+            try {
+                const resp = await fetch('http://localhost:3008/api/products/余姚杨梅');
+                const products = await resp.json();
+                const container = document.getElementById('productContainer');
+                if (!products.length) {
+                    container.innerHTML = '<div class="empty">暂无商品</div>';
+                    return;
+                }
+                container.innerHTML = products.map(p => `
+                    <a href="product-detail.html?id=${p.product_id}" class="product-card">
+                        <img src="${p.product_image || '001.jpg'}" alt="${p.product_name}">
+                        <div class="info">
+                            <div class="name">${p.product_name}</div>
+                            <div class="price">¥${p.price}<small>/份</small></div>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (err) {
+                document.getElementById('productContainer').innerHTML = '<div class="empty">⚠️ 加载失败，请确认后端服务已启动</div>';
+            }
+        }
+        loadProducts();
+    </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详情 - 农产品供需平台</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f5f7f5;
+            --text: #333;
+            --text-light: #888;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 0 40px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .navbar .logo-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .navbar .logo-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        .navbar .nav-links { display: flex; gap: 24px; }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .navbar .nav-links a:hover { color: var(--primary); background: #e8f5e9; }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .detail-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 36px;
+            display: flex;
+            gap: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .detail-card .img-box {
+            width: 320px;
+            flex-shrink: 0;
+        }
+        .detail-card .img-box img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .detail-card .info-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-card .info-box h1 {
+            font-size: 24px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .detail-card .info-box .meta {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+        .detail-card .info-box .price-tag {
+            font-size: 32px;
+            color: #e74c3c;
+            font-weight: 700;
+            margin: 16px 0;
+        }
+        .detail-card .info-box .price-tag small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #999;
+        }
+        .qty-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .qty-row span { font-size: 14px; color: #555; }
+        .qty-row button {
+            width: 36px;
+            height: 36px;
+            border: 2px solid var(--primary);
+            background: #fff;
+            color: var(--primary);
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+        }
+        .qty-row button:hover { background: #e8f5e9; }
+        .qty-row button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
+        .qty-row .qty-num {
+            font-size: 20px;
+            font-weight: 600;
+            min-width: 36px;
+            text-align: center;
+        }
+        .buy-btn {
+            margin-top: auto;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .buy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+        }
+        .msg {
+            margin-top: 12px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        .desc-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px 36px;
+            margin-top: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .desc-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        .desc-card p {
+            color: #666;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+        @media (max-width: 700px) {
+            .detail-card { flex-direction: column; }
+            .detail-card .img-box { width: 100%; }
+            .detail-card .img-box img { height: 240px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="Main.html" class="logo-area">
+            <img src="002.jpg" alt="logo" class="logo-img">
+            <span class="logo-text">宁波农产品供需平台</span>
+        </a>
+        <div class="nav-links">
+            <a href="Main.html">首页</a>
+            <a href="我的订单.html">我的订单</a>
+            <a href="投诉界面.html">投诉建议</a>
+            <a href="农产品供需网站.html">退出</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="detail-card">
+            <div class="img-box">
+                <img id="productImage" src="" alt="商品图片">
+            </div>
+            <div class="info-box">
+                <h1 id="productName">加载中...</h1>
+                <div class="meta">重量：<span id="productWeight">--</span>g</div>
+                <div class="price-tag">¥<span id="productPrice">--</span><small>/份</small></div>
+                <div class="qty-row">
+                    <span>数量：</span>
+                    <button id="qtyMinus" onclick="changeQty(-1)" disabled>−</button>
+                    <span class="qty-num" id="quantity">0</span>
+                    <button id="qtyPlus" onclick="changeQty(1)">+</button>
+                </div>
+                <button class="buy-btn" onclick="handleBuy()">立即购买</button>
+                <div class="msg" id="message"></div>
+            </div>
+        </div>
+        <div class="desc-card">
+            <h3>📝 商品描述</h3>
+            <p id="productDesc">宁波本地优质农产品，新鲜采摘，产地直供，品质有保障。</p>
+        </div>
+    </div>
+
+    <script>
+        let currentQty = 0;
+        // 从URL或默认获取产品ID
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id') || '123456';
+
+        async function loadProduct() {
+            try {
+                const resp = await fetch(`http://localhost:3010/api/products/${productId}`);
+                if (!resp.ok) throw new Error('商品不存在');
+                const p = await resp.json();
+                document.getElementById('productImage').src = p.product_image || '001.jpg';
+                document.getElementById('productName').textContent = p.product_name;
+                document.getElementById('productWeight').textContent = p.weight;
+                document.getElementById('productPrice').textContent = p.price;
+            } catch (err) {
+                document.getElementById('productName').textContent = '商品加载失败';
+                document.getElementById('message').innerHTML = '<span style="color:#e74c3c">⚠️ 请确认后端服务已启动</span>';
+            }
+        }
+
+        function changeQty(step) {
+            currentQty = Math.max(0, currentQty + step);
+            document.getElementById('quantity').textContent = currentQty;
+            document.getElementById('qtyMinus').disabled = currentQty === 0;
+        }
+
+        async function handleBuy() {
+            if (currentQty === 0) {
+                document.getElementById('message').innerHTML = '<span style="color:#e74c3c">请选择购买数量</span>';
+                return;
+            }
+            try {
+                const resp = await fetch(`http://localhost:3010/api/products/${productId}/purchase`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: currentQty })
+                });
+                const result = await resp.json();
+                if (!resp.ok) throw new Error(result.error || '购买失败');
+                document.getElementById('message').innerHTML = '<span style="color:#4CAF50">✅ 购买成功！</span>';
+                currentQty = 0;
+                document.getElementById('quantity').textContent = '0';
+                document.getElementById('qtyMinus').disabled = true;
+            } catch (err) {
+                document.getElementById('message').innerHTML = `<span style="color:#e74c3c">❌ ${err.message}</span>`;
+            }
+        }
+
+        loadProduct();
+    </script>
+</body>
+</html>
