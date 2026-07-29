@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>城市物流数据看板</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        h1 {
+            text-align: center;
+            margin: 0 auto 30px;
+            padding: 20px;
+            color: #fff;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #1a73e8 30%, #0050b3);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(24,144,255,0.3);
+            width: 85%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 25%, 
+                rgba(255,255,255,0.1) 50%, transparent 75%);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            100% { transform: translate(50%, 50%); }
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #f0f4f9;
+            color: #2d3a4a;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto 30px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 90%;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24,144,255,0.15);
+        }
+
+        .nav-item {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            padding: 14px 28px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin: 0 5px;
+            position: relative;
+            border: 1px solid rgba(24,144,255,0.1);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(24,144,255,0.15);
+            background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1890ff, #0050b3);
+            border-color: #1890ff;
+        }
+        .nav-item.active a { color: #fff; }
+
+        .nav-item a {
+            text-decoration: none;
+            color: #2d3a4a;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .province-title {
+            font-size: 1.6em;
+            color: #1a73e8;
+            margin: 40px auto 20px;
+            padding: 12px 24px;
+            border-left: 5px solid #1890ff;
+            background: rgba(255,255,255,0.95);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            width: 95%;
+            font-weight: 600;
+        }
+
+        .city-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+            padding: 0 2.5%;
+        }
+
+        .city-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .city-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .city-header {
+            font-size: 1.3em;
+            color: #1890ff;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8f0fe;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .city-header::before { content: '📍'; }
+
+        .chart-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .chart-item {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .chart-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .chart-img {
+            width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .forecast .chart-label {
+            color: #e67e22;
+        }
+    </style>
+</head>
+<body>
+    <h1>城市物流数据分析看板</h1>
+
+    <div class="nav-container">
+        <div class="nav-item"><a href="分析看板.html">📊 分析看板</a></div>
+        <div class="nav-item"><a href="运输监控.html">🚚 运输监控</a></div>
+        <div class="nav-item"><a href="路径规划.html">🗺️ 路径规划</a></div>
+        <div class="nav-item"><a href="仓储管理.html">🏭 仓储管理</a></div>
+        <div class="nav-item active"><a href="订单分析.html">📦 订单分析</a></div>
+        <div class="nav-item"><a href="#">⏱ 时效分析</a></div>
+        <div class="nav-item"><a href="#">💰 成本统计</a></div>
+        <div class="nav-item"><a href="#">⚙️ 系统设置</a></div>
+    </div>
+
+    <!-- 北京市 -->
+    <h2 class="province-title">北京市</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">北京</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/北京_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/北京_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上海市 -->
+    <h2 class="province-title">上海市</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">上海</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/上海_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/上海_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 广东省 -->
+    <h2 class="province-title">广东省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">广州</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/广州_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/广州_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">深圳</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/深圳_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/深圳_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">东莞</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/东莞_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/东莞_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浙江省 -->
+    <h2 class="province-title">浙江省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">杭州</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/杭州_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/杭州_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">宁波</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/宁波_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/宁波_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">温州</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/温州_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/温州_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 江苏省 -->
+    <h2 class="province-title">江苏省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">南京</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/南京_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/南京_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">苏州</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/苏州_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/苏州_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">无锡</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/无锡_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/无锡_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 四川省 -->
+    <h2 class="province-title">四川省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">成都</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/成都_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/成都_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">绵阳</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/绵阳_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/绵阳_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">宜宾</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/宜宾_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/宜宾_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 湖北省 -->
+    <h2 class="province-title">湖北省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">武汉</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/武汉_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/武汉_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">宜昌</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/宜昌_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/宜昌_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">襄阳</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/襄阳_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/襄阳_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 陕西省 -->
+    <h2 class="province-title">陕西省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">西安</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/西安_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/西安_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">咸阳</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/咸阳_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/咸阳_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 山东省 -->
+    <h2 class="province-title">山东省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">青岛</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/青岛_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/青岛_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">济南</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/济南_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/济南_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">烟台</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/烟台_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/烟台_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 福建省 -->
+    <h2 class="province-title">福建省</h2>
+    <div class="city-container">
+        <div class="city-card">
+            <div class="city-header">福州</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/福州_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/福州_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">厦门</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/厦门_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/厦门_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+        <div class="city-card">
+            <div class="city-header">泉州</div>
+            <div class="chart-comparison">
+                <div class="chart-item">
+                    <div class="chart-label">2023年实际订单趋势</div>
+                    <img src="analysis_results/2023/泉州_orders_2023.png" class="chart-img">
+                </div>
+                <div class="chart-item forecast">
+                    <div class="chart-label">2024年LSTM预测趋势</div>
+                    <img src="analysis_results/2024/泉州_orders_2024.png" class="chart-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

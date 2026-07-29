@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hadoop物流分析系统</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        h1 {
+            text-align: center;
+            margin: 0 auto 30px;
+            padding: 20px;
+            color: #fff;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #1a73e8 30%, #0050b3);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(24,144,255,0.3);
+            width: 85%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 25%, 
+                rgba(255,255,255,0.1) 50%, transparent 75%);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            100% { transform: translate(50%, 50%); }
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #f0f4f9;
+            color: #2d3a4a;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto 30px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 90%;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24,144,255,0.15);
+        }
+
+        .nav-item {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            padding: 14px 28px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin: 0 5px;
+            position: relative;
+            border: 1px solid rgba(24,144,255,0.1);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(24,144,255,0.15);
+            background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1890ff, #0050b3);
+            border-color: #1890ff;
+        }
+        .nav-item.active a { color: #fff; }
+
+        .nav-item a {
+            text-decoration: none;
+            color: #2d3a4a;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wrapper {
+            width: 90%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .stats-panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background: rgba(255,255,255,0.97);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            z-index: 1000;
+            min-width: 280px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24,144,255,0.1);
+        }
+
+        .stats-panel h3 {
+            margin: 0 0 16px;
+            color: #1a73e8;
+            font-size: 1.2em;
+            border-bottom: 2px solid #e8f0fe;
+            padding-bottom: 10px;
+        }
+
+        .stats-panel div {
+            padding: 8px 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        #mapContainer {
+            width: 100%;
+            height: 680px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid rgba(24,144,255,0.1);
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hadoop物流分析系统</h1>
+
+    <div class="nav-container">
+        <div class="nav-item"><a href="分析看板.html">📊 分析看板</a></div>
+        <div class="nav-item"><a href="运输监控.html">🚚 运输监控</a></div>
+        <div class="nav-item"><a href="路径规划.html">🗺️ 路径规划</a></div>
+        <div class="nav-item active"><a href="仓储管理.html">🏭 仓储管理</a></div>
+        <div class="nav-item"><a href="订单分析.html">📦 订单分析</a></div>
+        <div class="nav-item"><a href="#">⏱ 时效分析</a></div>
+        <div class="nav-item"><a href="#">💰 成本统计</a></div>
+        <div class="nav-item"><a href="#">⚙️ 系统设置</a></div>
+    </div>
+
+    <div class="wrapper">
+        <div class="stats-panel">
+            <h3>仓储网络概览</h3>
+            <div id="totalWarehouse">全国仓库总数：加载中...</div>
+            <div id="totalArea">总仓储面积：加载中...</div>
+            <div id="avgStock">平均库存率：加载中...</div>
+        </div>
+
+        <div id="mapContainer"></div>
+    </div>
+
+    <script src="echarts.min.js"></script>
+    <script src="china.js"></script>
+
+    <script>
+        // 仓储中心数据（30个主要仓储中心）
+        const warehouseData = [
+            {name: '北京中心仓', value: [116.40, 39.90, 85000], type: '超级仓'},
+            {name: '上海虹桥仓', value: [121.47, 31.23, 92000], type: '超级仓'},
+            {name: '广州枢纽仓', value: [113.26, 23.12, 78000], type: '超级仓'},
+            {name: '成都西部仓', value: [104.06, 30.67, 65000], type: '区域中心'},
+            {name: '武汉长江仓', value: [114.30, 30.59, 58000], type: '区域中心'},
+            {name: '西安丝路仓', value: [108.94, 34.26, 62000], type: '区域中心'},
+            {name: '沈阳东北仓', value: [123.43, 41.80, 48000], type: '区域中心'},
+            {name: '昆明跨境仓', value: [102.83, 24.88, 55000], type: '特色仓'},
+            {name: '厦门港口仓', value: [118.08, 24.46, 42000], type: '港口仓'},
+            {name: '乌鲁木齐仓', value: [87.62, 43.82, 38000], type: '边境仓'},
+            {name: '杭州电商仓', value: [120.15, 30.28, 68000], type: '电商仓'},
+            {name: '郑州枢纽仓', value: [113.62, 34.72, 72000], type: '超级仓'},
+            {name: '长沙中部仓', value: [112.93, 28.23, 53000], type: '区域中心'},
+            {name: '重庆山城仓', value: [106.50, 29.53, 61000], type: '区域中心'},
+            {name: '青岛港口仓', value: [120.38, 36.06, 47000], type: '港口仓'},
+            {name: '南京长江仓', value: [118.78, 32.04, 56000], type: '区域中心'},
+            {name: '深圳科技仓', value: [114.05, 22.55, 71000], type: '智能仓'},
+            {name: '天津港口仓', value: [117.20, 39.12, 63000], type: '港口仓'},
+            {name: '哈尔滨北仓', value: [126.53, 45.80, 39000], type: '区域中心'},
+            {name: '南宁东盟仓', value: [108.37, 22.82, 44000], type: '跨境仓'}
+        ];
+
+        const myChart = echarts.init(document.getElementById('mapContainer'));
+
+        // 仓库类型配色方案
+        const colorMap = {
+            '超级仓': '#1890ff',
+            '区域中心': '#52c41a',
+            '港口仓': '#fadb14',
+            '电商仓': '#ff7a45',
+            '智能仓': '#9254de',
+            '跨境仓': '#13c2c2',
+            '边境仓': '#eb2f96'
+        };
+
+        // 配置项
+        const option = {
+            title: {
+                text: '全国仓储网络分布',
+                subtext: '仓储中心实时状态监控',
+                left: 'center',
+                textStyle: {
+                    fontSize: 22,
+                    color: '#2c3e50'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    return `<div style="padding:10px;min-width:200px">
+                        <h4>${params.name}</h4>
+                        <div>类型：${params.data.type}</div>
+                        <div>仓储面积：${params.value[2]}㎡</div>
+                        <div>当前库存：${Math.round(params.value[2]*0.8*Math.random())}件</div>
+                        <div>温控系统：${Math.random() > 0.3 ? '正常' : '维护中'}</div>
+                    </div>`;
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                zoom: 1.1,
+                label: {
+                    show: true,
+                    color: '#666',
+                    fontSize: 12
+                },
+                itemStyle: {
+                    areaColor: '#F3F3F3',
+                    borderColor: '#999',
+                    borderWidth: 0.8
+                },
+                emphasis: {
+                    label: {
+                        color: '#333',
+                        fontWeight: 'bold'
+                    },
+                    itemStyle: {
+                        areaColor: '#FFF'
+                    }
+                }
+            },
+            series: [{
+                type: 'scatter',
+                coordinateSystem: 'geo',
+                symbol: 'pin',
+                symbolSize: [40, 50],
+                label: {
+                    show: true,
+                    formatter: '{b}',
+                    color: '#333',
+                    fontSize: 12,
+                    position: 'bottom'
+                },
+                itemStyle: {
+                    color: params => colorMap[warehouseData[params.dataIndex].type],
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.3)'
+                },
+                data: warehouseData,
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 20,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        // 更新统计面板
+        function updateStats() {
+            const total = warehouseData.length;
+            const totalArea = warehouseData.reduce((sum, d) => sum + d.value[2], 0);
+            const avgStock = (totalArea * 0.7 / total / 1000).toFixed(1);
+            
+            document.getElementById('totalWarehouse').textContent = `全国仓库总数：${total}个`;
+            document.getElementById('totalArea').textContent = `总仓储面积：${(totalArea/10000).toFixed(1)}万㎡`;
+            document.getElementById('avgStock').textContent = `平均库存率：${avgStock}万件`;
+        }
+
+        myChart.setOption(option);
+        updateStats();
+
+        // 添加点击事件
+        myChart.on('click', params => {
+            if (params.componentType === 'series') {
+                alert(`即将跳转至${params.name}管理系统...`);
+            }
+        });
+
+        // 窗口自适应
+        window.addEventListener('resize', () => myChart.resize());
+    </script>
+</body>
+</html>

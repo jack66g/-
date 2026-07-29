@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hadoop物流分析系统</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        h1 {
+            text-align: center;
+            margin: 0 auto 30px;
+            padding: 20px;
+            color: #fff;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #1a73e8 30%, #0050b3);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(24,144,255,0.3);
+            width: 85%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 25%, 
+                rgba(255,255,255,0.1) 50%, transparent 75%);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            100% { transform: translate(50%, 50%); }
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #f0f4f9;
+            color: #2d3a4a;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto 30px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 90%;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24,144,255,0.15);
+        }
+
+        .nav-item {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            padding: 14px 28px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin: 0 5px;
+            position: relative;
+            border: 1px solid rgba(24,144,255,0.1);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(24,144,255,0.15);
+            background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1890ff, #0050b3);
+            border-color: #1890ff;
+        }
+        .nav-item.active a { color: #fff; }
+
+        .nav-item a {
+            text-decoration: none;
+            color: #2d3a4a;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-container {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1890ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .chart-title::before {
+            content: '📊';
+            font-size: 1.2em;
+        }
+
+        .chart-img {
+            width: 100%;
+            height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .forecast .chart-title {
+            color: #e67e22;
+            border-color: #e67e22;
+        }
+        .forecast .chart-title::before {
+            content: '🔮';
+        }
+    </style>
+</head>
+<body>
+    <h1>Hadoop物流分析系统</h1>
+
+    <div class="nav-container">
+        <div class="nav-item active"><a href="分析看板.html">📊 分析看板</a></div>
+        <div class="nav-item"><a href="运输监控.html">🚚 运输监控</a></div>
+        <div class="nav-item"><a href="路径规划.html">🗺️ 路径规划</a></div>
+        <div class="nav-item"><a href="仓储管理.html">🏭 仓储管理</a></div>
+        <div class="nav-item"><a href="订单分析.html">📦 订单分析</a></div>
+        <div class="nav-item"><a href="#">⏱ 时效分析</a></div>
+        <div class="nav-item"><a href="#">💰 成本统计</a></div>
+        <div class="nav-item"><a href="#">⚙️ 系统设置</a></div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">2023年实际订单量</div>
+                <img src="orders_2023.png" class="chart-img" alt="2023订单量">
+            </div>
+            <div class="chart-card forecast">
+                <div class="chart-title">2024年预测订单量</div>
+                <img src="orders_2024.png" class="chart-img" alt="2024订单预测">
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">2023年实际收入分布</div>
+                <img src="revenue_2023.png" class="chart-img" alt="2023收入分布">
+            </div>
+            <div class="chart-card forecast">
+                <div class="chart-title">2024年预测收入分布</div>
+                <img src="revenue_2024.png" class="chart-img" alt="2024收入预测">
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-title">2023年运输热力图</div>
+                <img src="heatmap_2023.png" class="chart-img" alt="2023热力图">
+            </div>
+            <div class="chart-card forecast">
+                <div class="chart-title">2024年预测热力图</div>
+                <img src="heatmap_2024.png" class="chart-img" alt="2024热力预测">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

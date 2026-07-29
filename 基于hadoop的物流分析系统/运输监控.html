@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hadoop物流分析系统</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        h1 {
+            text-align: center;
+            margin: 0 auto 30px;
+            padding: 20px;
+            color: #fff;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #1a73e8 30%, #0050b3);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(24,144,255,0.3);
+            width: 85%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 25%, 
+                rgba(255,255,255,0.1) 50%, transparent 75%);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            100% { transform: translate(50%, 50%); }
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #f0f4f9;
+            color: #2d3a4a;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto 30px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 90%;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24,144,255,0.15);
+        }
+
+        .nav-item {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            padding: 14px 28px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin: 0 5px;
+            position: relative;
+            border: 1px solid rgba(24,144,255,0.1);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(24,144,255,0.15);
+            background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1890ff, #0050b3);
+            border-color: #1890ff;
+        }
+        .nav-item.active a { color: #fff; }
+
+        .nav-item a {
+            text-decoration: none;
+            color: #2d3a4a;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #mapContainer {
+            width: 90%;
+            height: 680px;
+            margin: 20px auto;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid rgba(24,144,255,0.1);
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hadoop物流分析系统</h1>
+
+    <div class="nav-container">
+        <div class="nav-item"><a href="分析看板.html">📊 分析看板</a></div>
+        <div class="nav-item active"><a href="运输监控.html">🚚 运输监控</a></div>
+        <div class="nav-item"><a href="路径规划.html">🗺️ 路径规划</a></div>
+        <div class="nav-item"><a href="仓储管理.html">🏭 仓储管理</a></div>
+        <div class="nav-item"><a href="订单分析.html">📦 订单分析</a></div>
+        <div class="nav-item"><a href="#">⏱ 时效分析</a></div>
+        <div class="nav-item"><a href="#">💰 成本统计</a></div>
+        <div class="nav-item"><a href="#">⚙️ 系统设置</a></div>
+    </div>
+
+    <div id="mapContainer"></div>
+
+    <script src="echarts.min.js"></script>
+    <script src="china.js"></script>
+
+    <script>
+        // 完整城市坐标数据（包含50个主要城市）
+        const cityData = {
+            '北京': [116.40, 39.90],
+            '上海': [121.47, 31.23],
+            '广州': [113.26, 23.12],
+            '深圳': [114.05, 22.55],
+            '成都': [104.06, 30.67],
+            '重庆': [106.50, 29.53],
+            '武汉': [114.30, 30.59],
+            '西安': [108.94, 34.26],
+            '杭州': [120.15, 30.28],
+            '南京': [118.78, 32.04],
+            '天津': [117.20, 39.12],
+            '郑州': [113.62, 34.72],
+            '长沙': [112.93, 28.23],
+            '沈阳': [123.43, 41.80],
+            '青岛': [120.38, 36.06],
+            '厦门': [118.08, 24.46],
+            '苏州': [120.62, 31.32],
+            '大连': [121.62, 38.92],
+            '济南': [117.00, 36.65],
+            '福州': [119.30, 26.08],
+            '合肥': [117.27, 31.86],
+            '昆明': [102.83, 24.88],
+            '哈尔滨': [126.53, 45.80],
+            '太原': [112.53, 37.87],
+            '南宁': [108.37, 22.82],
+            '乌鲁木齐': [87.62, 43.82],
+            '兰州': [103.82, 36.06],
+            '贵阳': [106.71, 26.57],
+            '长春': [125.32, 43.88],
+            '南昌': [115.89, 28.68],
+            '拉萨': [91.11, 29.61],
+            '呼和浩特': [111.73, 40.83],
+            '银川': [106.27, 38.47],
+            '西宁': [101.77, 36.62],
+            '海口': [110.32, 20.03],
+            '台北': [121.56, 25.04],
+            '香港': [114.16, 22.28],
+            '澳门': [113.54, 22.19],
+            '佛山': [113.11, 23.05],
+            '宁波': [121.54, 29.86],
+            '无锡': [120.29, 31.59],
+            '东莞': [113.75, 23.04],
+            '常州': [119.95, 31.78],
+            '南通': [120.86, 32.01],
+            '泉州': [118.67, 24.87],
+            '烟台': [121.39, 37.52],
+            '唐山': [118.18, 39.63],
+            '徐州': [117.18, 34.26],
+            '温州': [120.70, 28.00]
+        };
+
+        const myChart = echarts.init(document.getElementById('mapContainer'));
+
+        // 生成曲线路径
+        const createCurvePath = (start, end) => {
+            const diffX = end[0] - start[0];
+            const diffY = end[1] - start[1];
+            const control = [
+                start[0] + diffX * 0.5 + Math.random() * 10 - 5,
+                start[1] + diffY * 0.5 + Math.random() * 10 - 5
+            ];
+            return [start, control, end];
+        };
+
+        // 生成动态路线数据
+        const generateRoutes = () => {
+            const hubs = [
+                cityData['北京'], cityData['上海'], 
+                cityData['广州'], cityData['成都'], cityData['西安']
+            ];
+            
+            const routes = [];
+            hubs.forEach(hub => {
+                for (let i = 0; i < 10; i++) {
+                    const cities = Object.values(cityData);
+                    const target = cities[Math.floor(Math.random() * cities.length)];
+                    routes.push({
+                        coords: createCurvePath(hub, target),
+                        lineStyle: {
+                            color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0,0,0,0.3)'
+                        },
+                        name: `${getCityName(hub)} → ${getCityName(target)}`
+                    });
+                }
+            });
+            return routes;
+        };
+
+        // 根据坐标获取城市名称
+        const getCityName = (coord) => {
+            for (const [name, pos] of Object.entries(cityData)) {
+                if (pos[0].toFixed(2) === coord[0].toFixed(2) && 
+                    pos[1].toFixed(2) === coord[1].toFixed(2)) {
+                    return name;
+                }
+            }
+            return '未知城市';
+        };
+
+        // ECharts配置
+        const option = {
+            title: {
+                text: '实时运输网络监控',
+                subtext: `当前活跃运输路线：${Object.keys(cityData).length * 2}条 | 更新于：${new Date().toLocaleTimeString()}`,
+                left: 'center',
+                textStyle: {
+                    color: '#2c3e50',
+                    fontSize: 22
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: params => {
+                    if (params.seriesType === 'lines') {
+                        const speed = (Math.random() * 80 + 40).toFixed(0);
+                        const progress = (Math.random() * 100).toFixed(0);
+                        return `
+                        <div style="padding:10px;min-width:200px">
+                            <div style="border-bottom:1px solid #eee;padding-bottom:5px;margin-bottom:5px">
+                                ${params.name}
+                            </div>
+                            <div>运输进度：${progress}%</div>
+                            <div>实时速度：${speed}km/h</div>
+                            <div>预计到达：${Math.ceil((100 - progress)/20)}小时后</div>
+                        </div>`;
+                    }
+                    return params.name;
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                zoom: 1.1,
+                label: {
+                    show: true,
+                    color: '#666',
+                    fontSize: 12
+                },
+                itemStyle: {
+                    areaColor: '#F3F3F3',
+                    borderColor: '#999',
+                    borderWidth: 0.8
+                },
+                emphasis: {
+                    label: {
+                        color: '#333',
+                        fontWeight: 'bold'
+                    },
+                    itemStyle: {
+                        areaColor: '#FFF'
+                    }
+                }
+            },
+            series: [{
+                type: 'lines',
+                coordinateSystem: 'geo',
+                effect: {
+                    show: true,
+                    period: 4,
+                    trailLength: 0.2,
+                    symbol: 'arrow',
+                    symbolSize: [10, 15],
+                    color: 'rgba(255,255,255,0.8)'
+                },
+                lineStyle: {
+                    color: 'source',
+                    width: 2,
+                    curveness: 0.3,
+                    opacity: 0.8
+                },
+                data: generateRoutes()
+            }]
+        };
+
+        myChart.setOption(option);
+
+        // 每5秒更新数据
+        setInterval(() => {
+            option.title.subtext = `当前活跃运输路线：${Object.keys(cityData).length * 2}条 | 更新于：${new Date().toLocaleTimeString()}`;
+            option.series[0].data = generateRoutes();
+            myChart.setOption(option);
+        }, 5000);
+
+        // 窗口尺寸自适应
+        window.addEventListener('resize', () => myChart.resize());
+    </script>
+</body>
+</html>

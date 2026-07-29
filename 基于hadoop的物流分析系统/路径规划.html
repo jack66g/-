@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hadoop物流分析系统</title>
+    <style>
+        /* 现代化标题样式 */
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            color: #fff;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #1890ff 30%, #0050b3);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(24,144,255,0.3);
+            width: 85%;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 25%, 
+                rgba(255,255,255,0.1) 50%, transparent 75%);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            100% { transform: translate(50%, 50%); }
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Segoe UI', system-ui;
+            background: #f0f4f9;
+        }
+        
+        /* 现代导航样式 */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px auto;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 90%;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24,144,255,0.15);
+        }
+        
+        .nav-item {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            padding: 14px 28px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin: 0 5px;
+            position: relative;
+            border: 1px solid rgba(24,144,255,0.1);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(24,144,255,0.15);
+            background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1890ff, #0050b3);
+            border-color: #1890ff;
+        }
+        .nav-item.active a { color: #fff; }
+
+        .nav-item a {
+            text-decoration: none;
+            color: #2d3a4a;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 地图容器增强 */
+        #mapContainer {
+            width: 90%;
+            height: 680px;
+            margin: 20px auto;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid rgba(24,144,255,0.1);
+            overflow: hidden;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hadoop物流分析系统</h1>
+
+    <!-- 导航目录 -->
+    <div class="nav-container">
+        <div class="nav-item"><a href="分析看板.html">📊 分析看板</a></div>
+        <div class="nav-item"><a href="运输监控.html">🚚 运输监控</a></div>
+        <div class="nav-item active"><a href="路径规划.html">🗺️ 路径规划</a></div>
+        <div class="nav-item"><a href="仓储管理.html">🏭 仓储管理</a></div>
+        <div class="nav-item"><a href="订单分析.html">📦 订单分析</a></div>
+        <div class="nav-item"><a href="#">⏱ 时效分析</a></div>
+        <div class="nav-item"><a href="#">💰 成本统计</a></div>
+        <div class="nav-item"><a href="#">⚠️ 异常预警</a></div>
+        <div class="nav-item"><a href="#">⚙️ 系统设置</a></div>
+    </div>
+
+    <!-- 地图容器 -->
+    <div id="mapContainer"></div>
+
+    <!-- 引入ECharts -->
+    <script src="echarts.min.js"></script>
+    <script src="china.js"></script>
+    
+    <script>
+        // 真实路径生成函数
+        function generateRealisticPath(start, end) {
+            const controlPoints = [
+                [start[0] + (end[0]-start[0])*0.3, start[1] + (end[1]-start[1])*0.7],
+                [start[0] + (end[0]-start[0])*0.7, start[1] + (end[1]-start[1])*0.3]
+            ];
+            
+            return [
+                start,
+                [ // 贝塞尔曲线中间点
+                    (start[0] + controlPoints[0][0])/2 + Math.random()*2,
+                    (start[1] + controlPoints[0][1])/2 + Math.random()*2
+                ],
+                [
+                    (controlPoints[1][0] + end[0])/2 + Math.random()*2,
+                    (controlPoints[1][1] + end[1])/2 + Math.random()*2
+                ],
+                end
+            ];
+        }
+
+        // 真实物流路线数据
+        const routes = [
+            {
+                name: '华北-华东干线',
+                from: '北京', to: '上海',
+                coords: generateRealisticPath([116.40, 39.90], [121.47, 31.23]),
+                color: ['#1890ff', '#0050b3'],
+                width: 3
+            },
+            {
+                name: '华南-西南通道',
+                from: '广州', to: '成都',
+                coords: generateRealisticPath([113.26, 23.12], [104.06, 30.67]),
+                color: ['#52c41a', '#237804'],
+                width: 2.5
+            },
+            {
+                name: '西北-华中干线',
+                from: '西安', to: '武汉',
+                coords: generateRealisticPath([108.94, 34.26], [114.30, 30.59]),
+                color: ['#faad14', '#d48806'],
+                width: 2.2
+            },
+            {
+                name: '东北-西南大通道',
+                from: '哈尔滨', to: '昆明',
+                coords: generateRealisticPath([126.53, 45.80], [102.83, 24.88]),
+                color: ['#ff7a45', '#d4380d'],
+                width: 3.2
+            },
+            {
+                name: '西北-华东专线',
+                from: '乌鲁木齐', to: '杭州',
+                coords: generateRealisticPath([87.62, 43.82], [120.15, 30.28]),
+                color: ['#9254de', '#531dab'],
+                width: 2.8
+            }
+        ];
+
+        // 初始化地图
+        const myChart = echarts.init(document.getElementById('mapContainer'));
+
+        // 高级配置项
+        const option = {
+            title: {
+                text: '全国物流网络实时可视化',
+                subtext: 'Hadoop大数据分析平台',
+                left: 'center',
+                textStyle: {
+                    color: '#2d3a4a',
+                    fontSize: 22
+                },
+                subtextStyle: {
+                    color: '#666',
+                    fontSize: 16
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: params => {
+                    if (params.componentType === 'series') {
+                        return `${params.data.name}<br>
+                        起点：${params.data.from}<br>
+                        终点：${params.data.to}<br>
+                        当前运量：${Math.floor(Math.random()*1000)+500}吨`;
+                    }
+                    return params.name;
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                zoom: 1.2,
+                label: {
+                    show: true,
+                    color: '#666',
+                    fontSize: 12
+                },
+                itemStyle: {
+                    areaColor: '#f8f9ff',
+                    borderColor: '#a3b1c6',
+                    borderWidth: 0.8
+                },
+                emphasis: {
+                    label: {
+                        color: '#1890ff',
+                        fontWeight: 'bold'
+                    },
+                    itemStyle: {
+                        areaColor: '#e6f7ff'
+                    }
+                }
+            },
+            series: [
+                // 主路线系列
+                ...routes.map(route => ({
+                    type: 'lines',
+                    coordinateSystem: 'geo',
+                    polyline: true,
+                    data: [{
+                        name: route.name,
+                        from: route.from,
+                        to: route.to,
+                        coords: route.coords
+                    }],
+                    effect: {
+                        show: true,
+                        period: route.width * 1.5,
+                        trailLength: 0.2,
+                        symbol: 'arrow',
+                        symbolSize: [8, 12],
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                            offset: 0, color: route.color[0]
+                        }, {
+                            offset: 1, color: route.color[1]
+                        }])
+                    },
+                    lineStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                            offset: 0, color: route.color[0]
+                        }, {
+                            offset: 1, color: route.color[1]
+                        }]),
+                        width: route.width,
+                        curveness: 0.3,
+                        shadowBlur: 10,
+                        shadowColor: route.color[0]
+                    },
+                    progressive: 200,
+                    progressiveThreshold: 500
+                })),
+                
+                // 物流枢纽标记
+                {
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: [
+                        {name: '华北枢纽', value: [116.40, 39.90, 80]},
+                        {name: '华东枢纽', value: [121.47, 31.23, 70]},
+                        {name: '华南枢纽', value: [113.26, 23.12, 90]},
+                        {name: '西南枢纽', value: [104.06, 30.67, 60]}
+                    ],
+                    symbolSize: val => val[2],
+                    itemStyle: {
+                        color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+                            offset: 0,
+                            color: 'rgba(24,144,255,0.8)'
+                        }, {
+                            offset: 1,
+                            color: 'rgba(24,144,255,0.1)'
+                        }]),
+                        shadowBlur: 15,
+                        shadowColor: '#1890ff'
+                    }
+                }
+            ]
+        };
+
+        // 动态调整
+        myChart.setOption(option);
+        window.addEventListener('resize', () => myChart.resize());
+    </script>
+</body>
+</html>
